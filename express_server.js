@@ -14,43 +14,44 @@ function generateRandomString() {
 }
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  'b2xVn2': "http://www.lighthouselabs.ca",
+  '9sm5xK': "http://www.google.com"
 };
 
 app.use(express.urlencoded({ extended: true }));
 
-app.get("/urls", (request, response) => {
+app.get("/", (req, res) => {
+  res.send("Welome to the page!");
+});
+
+app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
-  response.render("urls_index", templateVars);
+  res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
-app.get("/urls/:id", (request, response) => {
-  const templateVars = { id: request.params.id, longURL: urlDatabase[request.params.id] };
-  response.render("urls_show", templateVars);
+app.get("/urls/:id", (req, res) => {
+  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
+  res.render("urls_show", templateVars);
 });
 
-app.get("/", (request, response) => {
-  response.send("Welome to the page!");
+app.post("/urls", (req, res) => {
+  const longURL = req.body.longURL
+  const shortURL = generateRandomString()
+  console.log(shortURL, longURL)
+  urlDatabase[shortURL] = longURL
+  //console.log("urlDatabase:", urlDatabase);
+  res.redirect(`/urls/${shortURL}`)
 });
 
-app.get("/urls.json", (request, response) => {
-  response.json(urlDatabase);
-});
-
-app.get("/hello", (request, response) => {
-  response.send("<html><body>No More Hello <b>World, K?</b></body></html>\n");
+app.get("/u/:id", (req, res) => {
+  const longURL = urlDatabase[req.params.id]
+  res.redirect(longURL);
 });
 
 app.listen(PORT, () => {
   console.log(`New app listening on port ${PORT}:`);
-});
-
-app.post("/urls", (req, res) => {
-  console.log(req.body); // Log the POST request body to the console
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
 });
