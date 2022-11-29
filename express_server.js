@@ -11,6 +11,10 @@ app.get("/", (request, response) => {
   response.send("Welome to the page!")
 })
 
+app.get("/urls.json", (request, response) => {
+  response.json(urlDatabase)
+})
+
 app.listen(PORT, () => {
   console.log(`New app listening on port ${PORT}:`)
 })
