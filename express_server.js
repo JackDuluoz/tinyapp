@@ -9,6 +9,11 @@ const urlDatabase = {
   "BBC": "http://www.bbc.com/"
 };
 
+app.get("/urls", (request, response) => {
+  const templateVars = { urls: urlDatabase };
+  response.render("urls_index", templateVars);
+});
+
 app.get("/", (request, response) => {
   response.send("Welome to the page!");
 });
