@@ -5,13 +5,18 @@ const PORT = 8080;
 app.set("view engine", "ejs")
 
 const urlDatabase = {
-  "Chess": "http://www.chess.com/home",
-  "BBC": "http://www.bbc.com/"
+  "b2xVn2": "http://www.lighthouselabs.ca",
+  "9sm5xK": "http://www.google.com"
 };
 
 app.get("/urls", (request, response) => {
   const templateVars = { urls: urlDatabase };
   response.render("urls_index", templateVars);
+});
+
+app.get("/urls/:id", (request, response) => {
+  const templateVars = { id: request.params.id, longURL: urlDatabase[request.params.id] };
+  response.render("urls_show", templateVars);
 });
 
 app.get("/", (request, response) => {
