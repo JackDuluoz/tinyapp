@@ -21,7 +21,7 @@ const urlDatabase = {
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
-  res.send("Welome to the page!");
+  res.redirect("/urls");
 });
 
 app.get("/urls", (req, res) => {
@@ -41,9 +41,7 @@ app.get("/urls/:id", (req, res) => {
 app.post("/urls", (req, res) => {
   const longURL = req.body.longURL
   const shortURL = generateRandomString()
-  console.log("Added:", shortURL, longURL)
   urlDatabase[shortURL] = longURL
-  //console.log("urlDatabase:", urlDatabase);
   res.redirect(`/urls/${shortURL}`)
 });
 
@@ -55,6 +53,13 @@ app.get("/u/:id", (req, res) => {
 app.post("/urls/:id/delete", (req, res) => {
   const shortURL = req.params.id
   delete urlDatabase[shortURL]
+  res.redirect('/urls')
+})
+
+app.post("/urls/:id", (req, res) => {
+  const shortURL = req.params.id
+  delete urlDatabase[shortURL]
+  urlDatabase[shortURL] = req.body.longURL
   res.redirect('/urls')
 })
 

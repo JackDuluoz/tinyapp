@@ -24,7 +24,11 @@
       </p>
       <!-- <a href="#">Create New URL</a> -->
     </div>
-    <div class="card-footer text-muted"></div>
+    <div class="card-footer text-muted">
+      <h5 class="card-title">EDIT</h5>
+      <form method="POST" action="/urls/<%= id %>">New URL: <input type="text" name="longURL" placeholder="http://" style="width: 300px; margin: 1em" /> <button type="submit" class="btn btn-primary">Submit</button></form>
+    </div>
+    <!-- <label for="longURL">Enter a URL:</label> -->
   </div>
   <!-- Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
