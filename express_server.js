@@ -3,10 +3,6 @@ const cookieParser = require('cookie-parser')
 const app = express();
 const PORT = 8080;
 
-app.set("view engine", "ejs")
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser())
-
 function generateRandomString() {
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
   let randomString = ""
@@ -20,6 +16,14 @@ const urlDatabase = {
   'b2xVn2': "http://www.lighthouselabs.ca",
   '9sm5xK': "http://www.google.com"
 };
+
+//MIddleWare
+
+app.set("view engine", "ejs")
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser())
+
+//Routes
 
 app.get("/", (req, res) => {
   res.redirect("/urls");
