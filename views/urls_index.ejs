@@ -16,7 +16,18 @@
     <%- include('partials/_header') %>
   </header>
   <main style="margin: 1em;">
-    <h3>My URLs</h3>
+    <h3>My URLs</h3><br/>
+    
+    <% if (!currentUser) { %>
+
+      <h5>Error: You must be logged in to see your URLs.</h5><br/>
+      <h5>Please use the links in the top right of the page to login
+          or to register a new account.
+      </h5>
+
+      <% } else { %>
+    
+    
     <table class="table">
       <thead>
         <tr>
@@ -29,23 +40,35 @@
       <tbody>
         <% for (let id in urls) { %>
           <tr>
+
             <td>
               <%= id %>
             </td>
+
             <td>
-              <%= urls[id] %>
+              <%= urls[id].longURL %>
             </td>
+            
             <td>
-              <form method="GET" action="/urls/<%= id %>"><button class="btn btn-primary">Edit</button></form>
+
+              <form method="GET" action="/urls/<%= id %>">
+              <button class="btn btn-primary">Edit</button>
+              </form>
+
             </td>
+
             <td>
-              <form method="POST" action="/urls/<%= id %>/delete"><button class="btn btn-danger">Delete</button></form>
+
+              <form method="POST" action="/urls/<%= id %>/delete">
+              <button class="btn btn-danger">Delete</button>
+              </form>
+            
             </td>  
           </tr>
           <% } %>
       </tbody>
     </table>
-    <!-- <a href="#">Create New URL</a> -->
+    <% } %>
   </main>
   <!-- Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"

@@ -1,3 +1,4 @@
+
 const express = require("express");
 const cookieParser = require('cookie-parser')
 const app = express();
@@ -5,8 +6,7 @@ const PORT = 8080;
 
 //
 
-// This function generates a random string (length 6) of alphanumeric characters
-// to use as a short URL.
+// This function generates a random string of 6 alphanumeric characters.
 function shortURLGenerator() {
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
   let randomString = ""
@@ -30,9 +30,25 @@ const userDatabase = {
 };
 
 const urlDatabase = {
-  'b2xVn2': "http://www.lighthouselabs.ca",
-  '9sm5xK': "http://www.google.com"
-};
+  'b2xVn2': {
+    longURL: "http://www.lighthouselabs.ca",
+    userID: "admin1"
+  },
+  '9sm5xK': {
+    longURL: "http://www.google.com",
+    userID: "user1a"
+  }
+}
+
+const urlsForUser = function (id) {
+  let userURLs = {}
+  for (let url in urlDatabase) {
+    if (id === urlDatabase[url].userID) {
+      userURLs[url] = { longURL: urlDatabase[url].longURL, userID: id }
+    }
+  }
+  return userURLs
+}
 
 // MiddleWare
 
@@ -48,8 +64,12 @@ app.get("/", (req, res) => {
 
 app.get("/urls", (req, res) => {
   let currentUser = req.cookies["user_id"]
-  const templateVars = { urls: urlDatabase, currentUser: userDatabase[currentUser] };
-  // console.log(userDatabase)
+  const templateVars = { urls: urlsForUser(currentUser), currentUser: userDatabase[currentUser] };
+  console.log("------------------------------------------")
+  console.log("USERS", userDatabase)
+  console.log("------------------------------------------")
+  console.log("URLs", urlDatabase)
+  console.log("------------------------------------------")
   res.render("urls_index", templateVars);
 });
 
@@ -64,7 +84,7 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:id", (req, res) => {
   let currentUser = req.cookies["user_id"] 
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], currentUser: userDatabase[currentUser] };
+  const templateVars = { id: req.params.id, longURL: urlsForUser(currentUser)[req.params.id], urls: urlsForUser(currentUser), currentUser: userDatabase[currentUser] };
   res.render("urls_show", templateVars);
 });
 
@@ -77,30 +97,44 @@ app.post("/urls", (req, res) => {
   }
   const longURL = req.body.longURL
   const shortURL = shortURLGenerator()
-  urlDatabase[shortURL] = longURL
+  urlDatabase[shortURL] = { longURL: longURL, userID: currentUser }
+  console.log(urlDatabase)
   res.redirect(`/urls/${shortURL}`)
 });
 
 app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id]
-  if (!longURL) {
-    console.log("URL Not in Database")
-    res.statusCode = 400
-    res.sendStatus(400)
+  const shortURL = req.params.id
+  for (let url in urlDatabase) {
+    console.log(url)
+    if (url === shortURL) {
+      console.log("Match")
+      res.redirect(urlDatabase[shortURL].longURL)
+      return
+    }
   }
-  res.redirect(longURL);
+  console.log("URL Not in Database")
+  res.statusCode = 400
+  res.sendStatus(400)
 });
 
 app.post("/urls/:id/delete", (req, res) => {
+  const inspect = require('util').inspect;
   const shortURL = req.params.id
-  delete urlDatabase[shortURL]
+  let currentUser = req.cookies["user_id"] 
+  if (inspect(urlDatabase[shortURL]) === inspect(urlsForUser(currentUser)[shortURL])) {
+    delete urlDatabase[shortURL]
+  }
   res.redirect('/urls')
 })
 
 app.post("/urls/:id", (req, res) => {
+  const inspect = require('util').inspect;
   const shortURL = req.params.id
-  delete urlDatabase[shortURL]
-  urlDatabase[shortURL] = req.body.longURL
+  let currentUser = req.cookies["user_id"] 
+  if (inspect(urlDatabase[shortURL]) === inspect(urlsForUser(currentUser)[shortURL])) {
+    delete urlDatabase[shortURL]
+    urlDatabase[shortURL] = { longURL: req.body.longURL, userID: currentUser }
+  }
   res.redirect('/urls')
 })
 

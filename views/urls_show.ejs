@@ -15,7 +15,21 @@
   <div class="card text-center">
     <div class="card-header"></div>
     <div class="card-body">
-      <h5 class="card-title">TinyURL for: <%= longURL %>
+      <% if (!currentUser) { %>
+      
+        <h5>Error: You must be logged in to see this page.</h5><br />
+        <h5>Please use the links in the top right of the page to login
+          or to register a new account.
+        </h5>
+      
+        <% } else if (!longURL) { %>
+
+        <h5>Error: You do not have access to this URL.</h5>
+
+        <% } else { %>
+              
+      
+      <h5 class="card-title">TinyURL for: <%= urls[id].longURL %>
       </h5>
       <p class="card-text">
         Short URL ID: <a href="/u/<%= id %>">
@@ -29,6 +43,7 @@
       <form method="POST" action="/urls/<%= id %>">New URL: <input type="text" name="longURL" placeholder="http://" style="width: 300px; margin: 1em" /> <button type="submit" class="btn btn-primary">Submit</button></form>
     </div>
     </div>
+    <% } %>
   <!-- Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
     integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
