@@ -104,17 +104,17 @@ app.post('/login', (req, res) => {
       console.log("Credentials Match")
       res.cookie("user_id", userDatabase[user].id)
       res.redirect('/urls');
-    } else {
-      res.statusCode = 403
-      res.sendStatus(403)
-    }    
-  }
+    }
+  }      
+  console.log("User Not Found")
+  res.statusCode = 403
+  res.sendStatus(403)
 })
 
 app.post('/logout', (req, res) => {
   let currentUser = req.cookies["user_id"]
   res.clearCookie("user_id", currentUser)
-  // console.log(`Deleted Cookie: ${currentUser}`)
+  console.log(`Deleted Cookie: ${currentUser}`)
   res.redirect('/login');
 })
 
@@ -128,20 +128,22 @@ app.post('/register', (req, res) => {
   const id = shortURLGenerator()
   const newEmail = req.body.email
   const newPassword = req.body.password
-  for (let user in userDatabase) {
-    if (newEmail === "" || newPassword === "") {
-      res.statusCode = 400
-      res.sendStatus(400)
-    }    
-    if (newEmail !== userDatabase[user].email) {
-      userDatabase[id] = { id: id, email: newEmail, password: newPassword }
-      res.cookie("user_id", id)
-      res.redirect('/urls');
-    } else {
-      res.statusCode = 400
-      res.sendStatus(400)
-    }
+  if (newEmail === "" || newPassword === "") {
+    res.statusCode = 400
+    res.sendStatus(400)
   }
+  for (let user in userDatabase) {
+    if (newEmail === userDatabase[user].email) {
+      console.log(user)
+      res.statusCode = 400  
+      res.sendStatus(400)
+      return
+    }  
+  }  
+  userDatabase[id] = { id: id, email: newEmail, password: newPassword }
+  res.cookie("user_id", id)
+  console.log(`Added Cookie: ${id}`)
+  res.redirect('/urls');
 })
 
 app.listen(PORT, () => {
