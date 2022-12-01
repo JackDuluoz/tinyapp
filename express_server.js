@@ -56,6 +56,9 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
   let currentUser = req.cookies["user_id"]
   const templateVars = { urls: urlDatabase, currentUser: userDatabase[currentUser] };
+  if (currentUser === undefined) {
+    res.redirect('/login')
+  }
   res.render("urls_new", templateVars);
 });
 
@@ -66,6 +69,12 @@ app.get("/urls/:id", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
+  let currentUser = req.cookies["user_id"]
+  if (currentUser === undefined) {
+    console.log("You must be logged in to do that.")
+    res.send("You must be logged in to do that.")
+    return
+  }
   const longURL = req.body.longURL
   const shortURL = shortURLGenerator()
   urlDatabase[shortURL] = longURL
@@ -74,6 +83,11 @@ app.post("/urls", (req, res) => {
 
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id]
+  if (!longURL) {
+    console.log("URL Not in Database")
+    res.statusCode = 400
+    res.sendStatus(400)
+  }
   res.redirect(longURL);
 });
 
@@ -91,8 +105,11 @@ app.post("/urls/:id", (req, res) => {
 })
 
 app.get('/login', (req, res) => {
-  let currentUser = req.cookies["user_id"]
+  let currentUser = req.cookies["user_id"]  
   const templateVars = { urls: urlDatabase, currentUser: userDatabase[currentUser] };
+  if (currentUser !== undefined) {
+    res.redirect('/urls')
+  }
   res.render("urls_login", templateVars)
 })
 
@@ -121,6 +138,9 @@ app.post('/logout', (req, res) => {
 app.get("/register", (req, res) => {
   let currentUser = req.cookies["user_id"]
   const templateVars = { urls: urlDatabase, currentUser: userDatabase[currentUser] };
+  if (currentUser !== undefined) {
+    res.redirect('/urls')
+  }
   res.render("urls_register", templateVars)
 });
 
