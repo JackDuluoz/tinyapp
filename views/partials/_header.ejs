@@ -11,13 +11,21 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
       </div>
-      <% if (!username) { %>
+
+<% if (!currentUser) { %>
+  <form method="POST" action="/login"><input type="text" name="user_id" style="width: 200px; margin: 1em" /> <button type="submit" class="btn btn-primary">Login</button></form>
+  <% } else { %>
+    <form method="POST" action="/logout">Logged in as: <%= currentUser.id %> <button type="submit"
+          class="btn btn-primary">Logout</button></form>
+    <% } %>
+
+      <!-- <% if (!username) { %>
       <form method="POST" action="/login"><input type="text" name="username"
             placeholder="Username" style="width: 200px; margin: 1em" /> <button type="submit"
             class="btn btn-primary">Login</button></form>
       <% } else { %>
       <form method="POST" action="/logout">Logged in as: <%= username %> <button type="submit" class="btn btn-primary">Logout</button></form>
-      <% } %>
+      <% } %> -->
     <!-- <form method="POST" action="/login">Logged in as: <%= username %> <input type="text" name="username" placeholder="Username"
         style="width: 200px; margin: 1em" /> <button type="submit" class="btn btn-primary">Login</button></form> -->
   </nav>
