@@ -17,18 +17,17 @@ function shortURLGenerator() {
 }
 
 const userDatabase = {
-  admin: {
+  admin1: {
     id: "admin1",
     email: "greenmr1995@gmail.com",
-    password: "toenails",
+    password: "123"
   },
-  user1RandomID: {
-    id: "user1RandomID",
-    email: "user1@example.com",
-    password: "qwerty",
+  user1a: {
+    id: "user1a",
+    email: "user1a@gmail.com",
+    password: "qwe"
   }
 };
-
 
 const urlDatabase = {
   'b2xVn2': "http://www.lighthouselabs.ca",
@@ -49,10 +48,8 @@ app.get("/", (req, res) => {
 
 app.get("/urls", (req, res) => {
   let currentUser = req.cookies["user_id"]
-  console.log(currentUser)
-  const templateVars = { urls: urlDatabase, currentUser: userDatabase[currentUser], username: req.cookies["username"]};
-  console.log(userDatabase)
-  console.log(userDatabase[currentUser])
+  const templateVars = { urls: urlDatabase, currentUser: userDatabase[currentUser] };
+  // console.log(userDatabase)
   res.render("urls_index", templateVars);
 });
 
@@ -93,18 +90,32 @@ app.post("/urls/:id", (req, res) => {
   res.redirect('/urls')
 })
 
+app.get('/login', (req, res) => {
+  let currentUser = req.cookies["user_id"]
+  const templateVars = { urls: urlDatabase, currentUser: userDatabase[currentUser] };
+  res.render("urls_login", templateVars)
+})
+
 app.post('/login', (req, res) => {
-  const username = req.body.username
-  res.cookie("username", username)
-  console.log(`Added Cookie: ${username}`)
-  res.redirect('/urls');
+  let email = req.body.email
+  let password = req.body.password
+  for (let user in userDatabase) {
+    if (email === userDatabase[user].email && password === userDatabase[user].password) {
+      console.log("Credentials Match")
+      res.cookie("user_id", userDatabase[user].id)
+      res.redirect('/urls');
+    } else {
+      res.statusCode = 403
+      res.sendStatus(403)
+    }    
+  }
 })
 
 app.post('/logout', (req, res) => {
   let currentUser = req.cookies["user_id"]
   res.clearCookie("user_id", currentUser)
-  console.log(`Deleted Cookie: ${currentUser}`)
-  res.redirect('/urls');
+  // console.log(`Deleted Cookie: ${currentUser}`)
+  res.redirect('/login');
 })
 
 app.get("/register", (req, res) => {
@@ -117,9 +128,20 @@ app.post('/register', (req, res) => {
   const id = shortURLGenerator()
   const newEmail = req.body.email
   const newPassword = req.body.password
-  userDatabase[id] = { id: id, email: newEmail, password: newPassword }  
-  res.cookie("user_id", id)
-  res.redirect('/urls');
+  for (let user in userDatabase) {
+    if (newEmail === "" || newPassword === "") {
+      res.statusCode = 400
+      res.sendStatus(400)
+    }    
+    if (newEmail !== userDatabase[user].email) {
+      userDatabase[id] = { id: id, email: newEmail, password: newPassword }
+      res.cookie("user_id", id)
+      res.redirect('/urls');
+    } else {
+      res.statusCode = 400
+      res.sendStatus(400)
+    }
+  }
 })
 
 app.listen(PORT, () => {
