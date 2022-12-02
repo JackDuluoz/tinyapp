@@ -1,6 +1,7 @@
 
 const express = require("express");
 const cookieParser = require('cookie-parser')
+const bcrypt = require("bcryptjs");
 const app = express();
 const PORT = 8080;
 
@@ -20,12 +21,12 @@ const userDatabase = {
   admin1: {
     id: "admin1",
     email: "greenmr1995@gmail.com",
-    password: "123"
+    password: bcrypt.hashSync("123", 10)
   },
   user1a: {
     id: "user1a",
     email: "user1a@gmail.com",
-    password: "qwe"
+    password: bcrypt.hashSync("qwe", 10)
   }
 };
 
@@ -150,8 +151,8 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
   let email = req.body.email
   let password = req.body.password
-  for (let user in userDatabase) {
-    if (email === userDatabase[user].email && password === userDatabase[user].password) {
+    for (let user in userDatabase) {
+      if (email === userDatabase[user].email && (bcrypt.compareSync(password, userDatabase[user].password) === true)) {
       console.log("Credentials Match")
       res.cookie("user_id", userDatabase[user].id)
       res.redirect('/urls');
@@ -182,6 +183,7 @@ app.post('/register', (req, res) => {
   const id = shortURLGenerator()
   const newEmail = req.body.email
   const newPassword = req.body.password
+  const hashedNewPassword = bcrypt.hashSync(newPassword, 10)
   if (newEmail === "" || newPassword === "") {
     res.statusCode = 400
     res.sendStatus(400)
@@ -194,7 +196,7 @@ app.post('/register', (req, res) => {
       return
     }  
   }  
-  userDatabase[id] = { id: id, email: newEmail, password: newPassword }
+  userDatabase[id] = { id: id, email: newEmail, password: hashedNewPassword }
   res.cookie("user_id", id)
   console.log(`Added Cookie: ${id}`)
   res.redirect('/urls');
