@@ -93,14 +93,14 @@ app.get("/u/:id", (req, res) => {
   const shortURL = req.params.id;
   for (let url in urlDatabase) {
     if (url === shortURL) {
-      console.log("Match");
+      console.log("URL Found, Proceeding to Site");
       res.redirect(urlDatabase[shortURL].longURL);
       return;
     }
   }
   console.log("URL Not in Database");
   res.statusCode = 400;
-  res.sendStatus(400);
+  res.status(400).send("Error 400: URL Not in Database.");
 });
 
 app.post("/urls/:id/delete", (req, res) => {
@@ -136,22 +136,20 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
-  for (let user in userDatabase) {
-    if (email === userDatabase[user].email && (bcrypt.compareSync(password, userDatabase[user].password) === true)) {
-      console.log("Credentials Match");
-      req.session.user_id = userDatabase[user].id;
-      res.redirect('/urls');
-    }
+  const user = getUserByEmail(email, userDatabase);
+  if (user && (bcrypt.compareSync(password, userDatabase[user].password) === true)) {
+    console.log("Credentials Match");
+    req.session.user_id = userDatabase[user].id;
+    res.redirect('/urls');
+    return;
   }
   console.log("User Not Found");
   res.statusCode = 403;
-  res.sendStatus(403);
+  res.status(403).send("Error 403: User Not Found.");
 });
 
 app.post('/logout', (req, res) => {
-  let currentUser = req.session.user_id;
   req.session = null;
-  console.log(`Deleted Cookie: ${currentUser}`);
   res.redirect('/login');
 });
 
@@ -170,20 +168,21 @@ app.post('/register', (req, res) => {
   const newPassword = req.body.password;
   const hashedNewPassword = bcrypt.hashSync(newPassword, 10);
   if (newEmail === "" || newPassword === "") {
+    console.log("Username and/or Password Empty");
     res.statusCode = 400;
-    res.sendStatus(400);
-    return
+    res.status(404).send("Error 400: Username and/or Password Empty.");
+    return;
   }
   for (let user in userDatabase) {
     if (newEmail === userDatabase[user].email) {
+      console.log("User Already Registered");
       res.statusCode = 400;
-      res.sendStatus(400);
+      res.status(404).send("Error 400: User Already Registered.");
       return;
     }
   }
   userDatabase[id] = { id: id, email: newEmail, password: hashedNewPassword };
   req.session.user_id = id;
-  console.log(`Added Cookie: ${id}`);
   res.redirect('/urls');
 });
 
